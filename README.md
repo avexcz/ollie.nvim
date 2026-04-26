@@ -1,0 +1,2 @@
+# ollie.nvim
+
