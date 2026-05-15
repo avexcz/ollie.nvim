@@ -1,0 +1,1 @@
+-- check if internet is on or not. If not, give suggestion to user to use ollama else run cloud.
