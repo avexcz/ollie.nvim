@@ -5,7 +5,7 @@
 ```
 
 It Opens the chat window anywhere, in bigger screen, with rounded border.
-<br> It also include chat with model switching feature.
+<br> It also include chat with model switching feature. It's default is read user only without reading full buffer.
 
 <br>
 

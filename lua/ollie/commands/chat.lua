@@ -1,99 +1,159 @@
 local M = {}
 
-local ollama = require("ollie.providers.ollama.model")
-local selector = require("ollie.core.selector")
-local context = require("ollie.handler.context.buff")
-local float = require("ollie.ui.front")
 
-local function create_chat_command() -- created chat command (:OllieChat) to interact with the AI, it takes the user query as an argument and sends it to the selected model along with the current buffer context, then displays the response in a window.
+-- handlers
+local chat = require("ollie.handler.chat")
+
+-- state
+local config = require("ollie.core.config")
+local session = require("ollie.core.session")
+
+--UI layer
+local session_ui = require("ollie.ui.session_ui")
+
+--UI setup
+local RENDER = {
+    CHAT = "chat",
+    PANEL = "panel",
+}
+
+
+--[[
+List:
+1. functions
+1.1 run_chat() >> ollie/handler/chat 
+1.2 run_fix() >> ollie/handler/debug
+
+2. commands
+2.1 :OllieChat
+2.2 :OllieCHAT
+2.3 :OllieFix
+
+]]
+
+
+
+    -- provider routing
+    -- if provider == "ollama" then
+
+    --     ollama.generate(
+    --         model,
+    --         query,
+    --         handle_response
+    --     )
+    -- elseif provider == "openai" then
+    --     openai.generate(
+    --         model,
+    --         query,
+    --         handle_response
+    --     )
+    -- elseif provider == "anthropic" then
+    --     anthropic.generate(
+    --         model,
+    --         query,
+    --         handle_response
+    --     )
+    -- else
+    --     vim.notify(
+    --         "Unknown provider: " .. provider,
+    --         vim.log.levels.ERROR,
+    --         { title = "Ollie" }
+    --     )
+    -- end
+
+
+--------------------------------------------------
+-- :OllieChat (lightweight chat without full context)
+--------------------------------------------------
+local function create_chat_command()
+
     vim.api.nvim_create_user_command(
         "OllieChat",
-        function(opts) -- function to handle the command execution.
-            local query = opts.args -- get the user query from the command arguments.
-
-            if query == "" then
-                vim.notify(
-                    "Please provide a query.",
-                    vim.log.levels.WARN,
-                    { title = "Ollie" }
-                )
-                return
-            end
-
-            local ctx = context.get_context() -- get the current buffer context, including content, cursor position, and file type from "ollie/handler/context/buff.lua".
-
-            query = query
-                .. "\n\nContext:\n"
-                .. ctx.buffer_content -- include the current buffer content as context for the AI to generate a more relevant response.
-
-            vim.notify(
-                "Thinking...",
-                vim.log.levels.INFO,
-                { title = "Ollie" }
-            )
-
-            local model = selector.get_model() or "avexcoder_3b:latest" -- get the currently selected model from "ollie/core/selector.lua", default to "qwen2.5-coder:3b" if no model is selected.
-
-            ollama.generate(model, query, function(response) -- call the generate function from "ollie/providers/ollama/model.lua" to send the query and context to the selected model and get the response.
-                vim.schedule(function() -- schedule the UI update on the main thread.
-                    if response == "Ollama offline" then
-                        vim.notify(
-                            "Ollama server is not running. Please start the server or switch to a cloud AI model.",
-                            vim.log.levels.ERROR,
-                            { title = "Ollie" }
-                        )
-                        return
-                    end
-
-                    float.open(response) -- display the AI response in a floating window using "ollie/ui/front.lua".
-                end)
-            end)
-
-        end,
-        {
-            nargs = "*", -- number of arguments (0 or more) to allow for the query.
-        }
-    )
-end
-
-local function create_model_command()  -- created model command (:OllieModel <model_name>) to switch between models
-    vim.api.nvim_create_user_command(
-        "OllieModel",
         function(opts)
-            local model = opts.args
 
-            if model == "" then
-                vim.notify(
-                    "Please provide a model name.",
-                    vim.log.levels.WARN,
-                    { title = "Ollie" }
-                )
-                return
-            end
-
-            selector.set_model(model)
-
-            vim.notify(
-                "Switched to model: " .. model,
-                vim.log.levels.INFO,
-                { title = "Ollie" }
+            chat.run_chat(
+                opts.args or "",
+                {
+                    include_context = false,
+                    render = RENDER.CHAT,
+                }
             )
         end,
+
         {
-            nargs = 1,
+        nargs = "*",
         }
     )
 end
 
---  :h ollie for more details on how to use the commands and switch between models, also check the README for examples and documentation. 
+-----------------------------------------
+-- :OllieCHAT (sends full buffer context)
+-----------------------------------------
+
+local function create_chat_context_command()
+
+    vim.api.nvim_create_user_command(
+         "OllieCHAT",
+         function(opts) 
+
+            chat.run_chat(opts.args or "",
+            {
+                include_context = true,
+                render = RENDER.CHAT,
+            }
+        )
+        end,
+
+        {
+            nargs = "*",
+        }
+    )
+end
+
+------------------------------
+-- session management commands
+------------------------------
+local function create_session_commands()
+
+    vim.api.nvim_create_user_command("OllieSessions", function()
+        session_ui.open()
+    end, {})
+
+    vim.api.nvim_create_user_command("OllieSessionClose", function()
+        session.close()
+    end, {})
+
+    vim.api.nvim_create_user_command("OllieSessionDelete", function()
+        session.delete()
+    end, {})
+
+    vim.api.nvim_create_user_command("OllieSessionClear", function()
+        session.clear()
+    end, {})
+
+    vim.api.nvim_create_user_command("OllieSessionSwitch", function(opts)
+        session.switch(opts.args)
+    end, {
+        nargs = 1,
+    })
+
+end
 
 
 
--- setup function to create the commands when the plugin is loaded
-function M.setup()
+--------
+-- setup
+--------
+
+function M.setup(opts)
+    
+    config.setup(opts)
+
     create_chat_command()
-    create_model_command()
- 
+    create_chat_context_command()
+    create_session_commands()
+
 end
 
 return M
+
