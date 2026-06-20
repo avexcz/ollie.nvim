@@ -1,7 +1,5 @@
 local M = {}
 
-local context = require("ollie.handler.context.buff")
-
 -----------------
 -- system prompt
 -----------------
@@ -15,34 +13,35 @@ local SYSTEM_PROMPT = table.concat({
 ----------------
 -- build prompt
 ----------------
-
 function M.build(query, opts)
-
     opts = opts or {}
-    local include_context = opts.include_context
 
-    -- no context mode
-    if not include_context then
+    -- no context mode 
+    if not opts.include_context then
         return query
     end
 
-    local ctx = context.get_context() or {}
+    local buffer_content = ""
+
+    local filetype = ""
+    if type(opts.context) == "table" then
+        buffer_content = opts.context.buffer_content or ""
+        filetype = opts.context.filetype or ""
+    end
+
 
     return table.concat({
 
         SYSTEM_PROMPT,
         "",
+        "Context (" .. (filetype ~= "" and filetype or "unknown") .. "):",
+        "```" .. filetype,
+        buffer_content,
+        "```",
+        "",
         "User Request:",
         query,
-        "",
-        "File Type:",
-        ctx.file_type or "",
-        "",
-        "Buffer Content:",
-        "```" .. (ctx.file_type or ""),
-        ctx.buffer_content or "",
-        "```",
-
+        
     }, "\n")
 end
 

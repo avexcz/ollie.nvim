@@ -1,5 +1,6 @@
 local M = {}
 
+-- user fix validation
 function M.fix(query, selected_code)
     if type(query) ~= "string" or vim.trim(query) == ""
     then

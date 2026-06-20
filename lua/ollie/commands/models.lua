@@ -2,7 +2,6 @@ local M = {}
 
 --core
 local selector = require("ollie.core.selector")
-local router   = require("ollie.core.router") 
 
 --ui
 local notify = require("ollie.ui.notify")
@@ -16,9 +15,6 @@ local notify = require("ollie.ui.notify")
 2.2 :OllieProvider <provider_name>
 2.3 :OllieListModels
 2.4 :OllieListProviders
-2.5 :OllieTestModel <model_name>
-
-
 
 ]]
 
@@ -29,8 +25,7 @@ local notify = require("ollie.ui.notify")
 local function create_model_command()
 
     vim.api.nvim_create_user_command(
-        
-    "OllieModel",
+        "OllieModel",
 
         function(opts)
             local model = vim.trim(opts.args or "")
@@ -44,7 +39,14 @@ local function create_model_command()
                 return
             end
 
-            selector.set_model(model)
+            if not selector.set_model(model) then
+                vim.notify(
+                    "Invalid model: " .. model,
+                    vim.log.levels.WARN,
+                    { title = "Ollie" }
+                )
+                return
+            end
 
             notify.switched(
                 "model",
@@ -108,7 +110,15 @@ local function create_provider_command()
                 return
             end
 
-            selector.set_provider(provider)
+            if not selector.set_provider(provider) then
+                vim.notify(
+                    "Invalid provider: " .. provider,
+                    vim.log.levels.WARN,
+                    { title = "Ollie" }
+                )
+                return
+            end
+
             notify.switched("provider", provider)
         end,
         { 

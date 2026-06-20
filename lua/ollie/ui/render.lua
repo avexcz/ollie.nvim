@@ -1,80 +1,134 @@
 local M = {}
 
+-- parsers
+local parsers = require("ollie.parser.init")
 
--- ui backends
-local float = require("ollie.ui.front")
-local panel = require("ollie.ui.panel")
-local stream = require("ollie.ui.behaviour.stream")
+-------------------------------
+-- text normalization pipeline
+-------------------------------
+function M.process(text)
+    return parsers.process(text)
+end
 
+-- normalize chunk
+local function normalize(chunk)
+    if type(chunk) == "table" then
+        return chunk.response or chunk.text or chunk.content or ""
+    end
+    return tostring(chunk or "")
+end
 
--- render modes
-local MODES = {
-    CHAT = "chat",
-    PANEL = "panel",
-}
+local separator = "------------------------------"
 
+function M.user(text)
+    text = M.process(text)
 
--- validate mode
-local function is_valid_mode(mode)
+    return table.concat({
+        "",
+        "User:",
+        separator,
+        text or "",
+        "",
+    }, "\n")
+end
 
-    return mode == MODES.CHAT
-    or mode == MODES.PANEL
+function M.ollie_start()
+    return table.concat({
+        "Ollie:",
+        separator,
+    }, "\n")
+end
 
+function M.ollie(response, model)
+    local text = normalize(response)
+    text = M.process(text)
+
+    local lines = {
+        "Ollie:",
+        separator,
+        text or "",
+    }
+
+    if model and model ~= "" then
+        vim.list_extend(lines, {
+            "",
+            "Model: " .. model,
+        })
+    end
+
+    table.insert(lines, "")
+
+    return table.concat(lines, "\n")
+end
+
+function M.ollie_end(model)
+    if not model or model == "" then
+        return ""
+    end
+
+    return table.concat({
+        "",
+        "Model: " .. model,
+        "",
+    }, "\n")
 end
 
 
--- chunk rendering
-function M.chunk(mode, chunk)
+--query block format
+function M.format_query(query, selected_code)
+    query = M.process(query)
+    selected_code = selected_code and M.process(selected_code) or nil
 
-    local text = type(chunk) == "table" and (chunk.response or chunk.text or "") or chunk
-    if type(text) ~= "string" or text == "" then
-        return
+    local lines = {
+        "",
+        "User:",
+        separator,
+        query or "",
+    }
+
+    if selected_code and selected_code ~= "" then
+        vim.list_extend(lines, {
+            "",
+            "Selected Code:",
+            separator,
+            selected_code,
+        })
     end
 
+    vim.list_extend(lines, {
+        "",
+        "Ollie:",
+        separator,
+        "",
+    })
 
-    -- floating chat renderer
-    if mode == MODES.CHAT then
-        stream.append(float.get_buf(), float.get_win(), text)
-        return
-    end
-
-
-    -- panel renderer
-    if mode == MODES.PANEL then
-        stream.append(panel.get_buf(), panel.get_win(), text)
-        return
-    end
+    return table.concat(lines, "\n")
 end
 
 
--- completion rendering
-function M.complete(mode, response)
+-- chunk format
+function M.chunk(chunk)
 
-    -- floating chat renderer
-    if mode == MODES.CHAT then
-        stream.finish(float.get_buf(), float.get_win())
-        return
-    end
+    local text = normalize(chunk)
+    text = M.process(text)
 
-    -- panel renderer
-    if mode == MODES.PANEL then
-        stream.finish(panel.get_buf(), panel.get_win())
-        return
-    end
+    return text
 end
 
+-- completion format
+function M.complete(response, model)
+    return M.ollie(response, model)
+end
 
 -- error rendering
 function M.error(err)
-    local msg = type(err) == "table"
-        and (err.error or err.message or vim.inspect(err))
-        or tostring(err)
-        
-    vim.notify(
-        msg,
-        vim.log.levels.ERROR,
-        { title = "Ollie" }
-    )
+
+    return table.concat({
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        "Error:",
+        tostring(err),
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    }, "\n")
 end
 
 return M

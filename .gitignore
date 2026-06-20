@@ -1,1 +1,7 @@
-.DS_store
+*.lua~
+*.luac
+*.swp
+*.swo
+*.swn
+.DS_Store
+**/.DS_Store

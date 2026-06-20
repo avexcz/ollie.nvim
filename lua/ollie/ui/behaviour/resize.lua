@@ -1,7 +1,6 @@
 local M = {}
 
-local panel = require("ollie.ui.panel")
-local float = require("ollie.ui.front")
+local window = require("ollie.ui.windows.window")
 
 local augroup = vim.api.nvim_create_augroup("OllieResize", { clear = true })
 
@@ -25,17 +24,7 @@ local function schedule_resize(fn)
 end
 
 local function do_resize()
-    -- panel resize
-    local panel_win = panel.get_win()
-    if panel_win and vim.api.nvim_win_is_valid(panel_win) then
-        panel.resize()
-    end
-
-    -- float resize
-    local float_win = float.get_win()
-    if float_win and vim.api.nvim_win_is_valid(float_win) then
-        float.resize()
-    end
+    window.resize_all()
 end
 
 function M.setup()

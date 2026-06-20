@@ -3,12 +3,14 @@ local M = {}
 local ft = vim.bo[0].filetype
 
 -- fix prompt
-function M.fix(query, selected_code)
+function M.explain(query, selected_code)
 
     return table.concat({
         "You are an expert programmer.",
-        "Fix the provided code strictly based on the user's instruction.",
-        "Return only corrected code.",
+        "Explain the given code based on the user's instruction.",
+        "Explain the code clearly and technically.",
+        "Focus on logic, flow, and important concepts.",
+        "Do not rewrite the code unless necessary.",
         "",
         "Instruction:",
         query,

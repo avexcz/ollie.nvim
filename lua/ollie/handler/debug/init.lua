@@ -2,98 +2,121 @@ local M = {}
 
 -- core
 local router = require("ollie.core.router")
-local config = require("ollie.core.config")
-local selector = require("ollie.core.selector")
-local events = require("ollie.core.events")
 local session = require("ollie.core.session")
+local runtime = require("ollie.core.runtime")
+local response_text = require("ollie.core.response")
+
+--format
+local selection = require("ollie.core.context.selection")
+local render = require("ollie.ui.render")
+
+-- ui
+local window = require("ollie.ui.windows.window")
+local notify = require("ollie.ui.notify")
 
 -- prompt + validation
 local prompt_builder = require("ollie.handler.debug.prompt")
 local validate = require("ollie.handler.debug.validate")
 
 
--- helpers
-local function resolve_provider()
-    return selector.get_provider() or config.get("default_provider")
-end
-
-local function resolve_model()
-    return selector.get_model() or config.get("default_model")
-end
-
-------------------------
--- debug execution layer
-------------------------
+--------------------------------------------------
+-- fix execution layer
+--------------------------------------------------
 function M.run_fix(query, selected_code, opts)
-    opts = opts or {}
+    if type(selected_code) == "table" and opts == nil then
+        opts = selected_code
+        selected_code = nil
+    end
 
+    opts = opts or {}
+    selected_code = selected_code or selection.get_selected_code()
+    
     -- validation
     local ok, err = validate.fix(query, selected_code)
+
     if not ok then
-        vim.notify(err, vim.log.levels.WARN, { title = "Ollie" })
+        vim.notify(
+            err,
+            vim.log.levels.WARN,
+            { title = "Ollie" }
+        )
         return
     end
 
-    -- session
-    session.start("fix")
-
-    -- runtime config
-    local provider = resolve_provider()
-    local model = resolve_model()
-
-    -- prompt
-    local prompt = prompt_builder.fix(query, selected_code)
-
-    -- user message
-    events.emit("user_message", query)
-
-    -- task start
-    events.emit("task_start", {
-        task = "fix",
-        provider = provider,
-        model = model,
+    --store user message
+    session.add("user",  {
+        query = query,
+        code = selected_code
     })
 
-    -- request
+    -- runtime config
+    local provider = runtime.provider(opts)
+    local model = runtime.model(opts)
+
+    -- build prompt
+    local prompt = prompt_builder.fix(
+        query,
+        selected_code
+    )
+
+    -- open panel
+    window.open("fix")
+
+    -- display
+    window.append(
+        "fix",
+        render.format_query(query, selected_code)
+    )
+
+    -- notify loading
+    notify.running(
+        provider,
+        model,
+        "fix"
+    )
+
+    local streamed = false
+
+    -- execute request
     router.request({
+
         task = "fix",
         provider = provider,
         model = model,
         prompt = prompt,
-        stream = config.get("streaming"),
+        stream = runtime.streaming(opts),
 
-
-        -- streaming
+        -- streaming chunks
         on_chunk = function(chunk)
+            streamed = true
+
             vim.schedule(function()
-                events.emit("stream_chunk", {
-                    task = "fix",
-                    text = chunk,
-                })
+                window.append("fix", render.chunk(chunk))
             end)
         end,
-
 
         -- completion
         on_complete = function(response)
-            vim.schedule(function()
-                events.emit("task_complete", {
-                    task = "fix",
-                    text = response,
-                })
 
-                events.emit("assistant_message", response)
+            vim.schedule(function()
+                if streamed then
+                    window.append("fix", render.ollie_end(model))
+                else
+                    window.append("fix", render.complete(response, model))
+                end
+                window.finish("fix")
+
+                session.add("assistant", response_text.text(response))
             end)
+
         end,
 
-
-        -- error
+        -- error handling
         on_error = function(err)
+
             vim.schedule(function()
-                events.emit("task_error", {
-                    task = "fix",
-                    error = err,
-                })
+            window.append("fix", render.error(err))
+            window.finish("fix")
             end)
         end,
     })

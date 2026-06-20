@@ -1,6 +1,10 @@
+-- model router for dispatching requests to providers based
+
 local M = {}
 
 local providers = require("ollie.providers")
+local permission = require("ollie.system.security.permission")
+local selector = require("ollie.core.selector")
 
 -- routing traffic control rules
 local defaults = { 
@@ -41,22 +45,40 @@ local rules = {
     autocomplete = {
         provider = "ollama",
         model = "avexcoder_3b:latest",
+    },
+
+    explain = {
+        provider = "ollama",
+        model = "avexcoder_3b:latest",
     }
 }
 
 
--- validate routing rule asynchronously to prevent blocking UI
-local function validate_route(route, task)
-    if not route then
+local function notify_error(message, title, on_error)
+    vim.notify(message, vim.log.levels.ERROR, { title = title or "Ollie Router" })
 
-        vim.schedule(function()
-            vim.notify(
-                "No routing rule for task: '" .. tostring(task) .. "'."
-                .. " Register one with router.register_rule().",
-                vim.log.levels.ERROR,
-                { title = "Ollie Router" }
-            )
-        end)
+    if type(on_error) == "function" then
+        on_error({ error = message })
+    end
+end
+
+local function notify_warn(message, title, on_error)
+    vim.notify(message, vim.log.levels.WARN, { title = title or "Ollie Router" })
+
+    if type(on_error) == "function" then
+        on_error({ error = message })
+    end
+end
+
+-- validate routing rule asynchronously to prevent blocking UI
+local function validate_route(route, task, on_error)
+    if not route then
+        notify_error(
+            "No routing rule for task: '" .. tostring(task) .. "'."
+            .. " Register one with router.register_rule().",
+            "Ollie Router",
+            on_error
+        )
         return false
     end
     return true
@@ -71,52 +93,67 @@ function M.request(opts)
     local task = opts.task or "chat"
     local route = rules[task]
 
-    if not validate_route(route, task) then
-        return
+    if not validate_route(route, task, opts.on_error) then
+        return false
     end
 
     
     -- provider/model resolution
-    local provider_name = opts.provider or route.provider
-    local model = opts.model or route.model
+    local provider_name = opts.provider or selector.get_provider() or route.provider
+    local model = opts.model or selector.get_model() or route.model
     local provider = providers.get(provider_name)
 
     if not provider or type(provider.generate) ~= "function" then
-
-        vim.notify(
+        notify_error(
             "Provider '" .. tostring(provider_name) .. "' is unavailable"
             .. " or missing a generate() function.",
-            vim.log.levels.ERROR,
-            { title = "Ollie Router" }
+            "Ollie Router",
+            opts.on_error
         )
 
-        return
+        return false
     end
 
 
     local prompt = opts.prompt
-    if type(prompt) ~= "string" or prompt == "" then
-        vim.notify(
+    if type(prompt) ~= "string" or vim.trim(prompt) == "" then
+        notify_warn(
             "Empty or missing prompt. Aborting dispatch.",
-            vim.log.levels.WARN,
-            { title = "Ollie Router" }
+            "Ollie Router",
+            opts.on_error
         )
-        return
+        return false
+    end
+
+    local allowed, permission_err = permission.authorize_request({
+        task = task,
+        provider = provider_name,
+        model = model,
+        prompt = prompt,
+    })
+
+    if not allowed then
+        notify_error(
+            permission_err,
+            "Ollie Security",
+            opts.on_error
+        )
+        return false
     end
 
 
     local has_callbacks = type(opts.on_response) == "function"
-        or type(opts.on_chunk)    == "function"
+        or type(opts.on_chunk) == "function"
         or type(opts.on_complete) == "function"
 
     if not has_callbacks then
-        vim.notify(
+        notify_error(
             "router.request(): at least one response callback is required"
             .. " (on_response, on_chunk, or on_complete).",
-            vim.log.levels.ERROR,
-            { title = "Ollie Router" }
+            "Ollie Router",
+            opts.on_error
         )
-        return
+        return false
     end
 
 
@@ -139,7 +176,13 @@ function M.request(opts)
         on_error = opts.on_error,       -- called on any provider-side error
     }
 
-    provider.generate(body, callbacks)
+    local ok, stream_or_err = pcall(provider.generate, body, callbacks)
+    if not ok then
+        notify_error(tostring(stream_or_err), "Ollie Router", opts.on_error)
+        return false
+    end
+
+    return stream_or_err
 end
 
 

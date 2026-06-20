@@ -25,4 +25,14 @@ function M.switched(kind, value)
     )
 end
 
+function M.list(title, items)
+    items = items or {}
+
+    vim.notify(
+        table.concat(items, "\n"),
+        vim.log.levels.INFO,
+        { title = title or "Ollie" }
+    )
+end
+
 return M

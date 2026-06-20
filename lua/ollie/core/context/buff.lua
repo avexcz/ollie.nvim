@@ -2,12 +2,8 @@ local M = {}
 
 -- buffer content
 local function get_buffer_content()
-    local lines = vim.api.nvim_buf_get_lines( -- get the content of the current buffer as a list of lines
-        0,
-        0,
-        -1,
-        false
-    )
+   
+    local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)  -- get the content of the current buffer as a list of lines
     return table.concat(lines, "\n") -- join the list of lines into a single string with line breaks
 
 --[[
@@ -39,7 +35,7 @@ function M.get_context()
     local context = {
         buffer_content = get_buffer_content(), -- get the content of the current buffer as a list of lines
         cursor_position = get_cursor(), -- get the current blinking cursor position as a tuple (line, column)
-        file_type = get_filetype(), -- get the file type of the current buffer (e.g., "lua", "python", etc.)
+        filetype = get_filetype(), -- get the file type of the current buffer (e.g., "lua", "python", etc.)
 
     }
     return context

@@ -1,17 +1,10 @@
 local M = {}
 
---add a provider manager to manage multiple providers, allowing users to switch between them easily and configure them as needed. This manager can handle provider-specific settings, authentication, and fallback mechanisms.
--- provider registry + common interface
-
 M.providers = {
-    ollama = require("ollie.providers.ollama.model"),
-    openai = require("ollie.providers.openai.cloud"),
-    anthropic = require("ollie.providers.anthropic.cloud"),
-    google = require("ollie.providers.google.cloud"),
+    ollama = require("ollie.providers.ollama.model")
 }
 
 function M.get(name)
-    
     local provider = M.providers[name]
 
     if not provider then
@@ -27,8 +20,45 @@ function M.get(name)
     return provider
 end
 
+function M.names()
+    local names = {}
 
+    for name, _ in pairs(M.providers) do
+        table.insert(names, name)
+    end
 
+    table.sort(names)
+    return names
+end
 
+function M.models(name)
+    if name then
+        local provider = M.get(name)
+        if not provider then
+            return {}
+        end
+
+        if type(provider.models) == "function" then
+            return provider.models()
+        end
+
+        return vim.deepcopy(provider.models or {})
+    end
+
+    local result = {}
+
+    for provider_name, provider in pairs(M.providers) do
+        local models = type(provider.models) == "function"
+            and provider.models()
+            or provider.models
+
+        for _, model in ipairs(models or {}) do
+            table.insert(result, provider_name .. ":" .. model)
+        end
+    end
+
+    table.sort(result)
+    return result
+end
 
 return M
