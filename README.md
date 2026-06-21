@@ -1,10 +1,15 @@
-# Ollie
+# Ollie.nvim
+
+> [!NOTE]
+>
+> ⚠️ This project is under the construction. Please stay tuned and, contributing and PR Request are opened. Thank you
 
 Ollie.nvim is an open-source, AI self-host backend Neovim plugin that integrates large language models into the editor through a modular routing and provider system.
 
 It supports both local inference engines and remote APIs, enabling privacy-first and extensible AI workflows.
 
 The architecture separates UI, request handling, and model providers, allowing developers to extend or replace backend engines without modifying core logic.
+
 </br>
 
 ### Media
