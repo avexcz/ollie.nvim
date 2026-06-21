@@ -7,6 +7,15 @@ It supports both local inference engines and remote APIs, enabling privacy-first
 The architecture separates UI, request handling, and model providers, allowing developers to extend or replace backend engines without modifying core logic.
 </br>
 
+### Media
+
+<div align = "center">
+
+<img src = "docs/ss/ollie.png" width = "80%">
+<img src = "docs/ss/printf.png" width = "80%">
+
+</div>
+
 ### Features
 
 - **Structured handlers** — Discrete commands for explanation, debugging, fixing, and many more coming soon. Each handler owns its context and prompt logic independently.
@@ -17,6 +26,16 @@ The architecture separates UI, request handling, and model providers, allowing d
 - **Security layer** — Permission model, policy enforcement, and trust management for sensitive operations.
 - **Selector abstraction** — Picker-agnostic model and provider selection. Works with `telescope.nvim`, `fzf-lua`, `vim.ui.select`, or custom frontends.
 - **Multi-provider support** — You can add providers such as Anthropic (Claude API), OpenAI (Cloud API), Google (Cloud), Ollama (local inference). Switch providers per task. For building multi-provider support, check [#Providers](docs/documentation.md) on doucmentation.md
+
+</br>
+
+<h3 align="left">
+  Sending the query
+</h3>
+
+<p align="center">
+  <img src="docs/vid/output.gif" alt="Dashboard" width = "80%" />
+</p>
 
 </br>
  
