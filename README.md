@@ -1,11 +1,10 @@
-# Ollie.nvim
+# Ollie
 
-Ollie.nvim is an open-source, AI self-host backend Neovim plugin that integrates large language models into the editor through a modular routing and provider system.
+Ollie.nvim is an open-source, AI self-host backend [Neovim](https://neovim.io/) plugin that integrates large language models into the editor through a modular routing and provider system.
 
 It supports both local inference engines and remote APIs, enabling privacy-first and extensible AI workflows.
 
 The architecture separates UI, request handling, and model providers, allowing developers to extend or replace backend engines without modifying core logic.
-
 </br>
 
 ### Media
@@ -39,13 +38,7 @@ The architecture separates UI, request handling, and model providers, allowing d
 </p>
 
 </br>
-
- > [!NOTE]
->
-> ⚠️ This project is under the construction. Please stay tuned and, contributing and PR Request are opened. Thank you
-
-</br>
-
+ 
 ### Personal Assistant Architecture
 ```text
 ┌─────────────────────────────────────────────┐
@@ -74,7 +67,7 @@ The architecture separates UI, request handling, and model providers, allowing d
 
 </br>
 
-Default model is `avexcoder_3b:latest` from ollama. It is designed around a clean separation of concerns: providers handle model communication, security, permissions, handlers define task semantics, and the UI layer stays thin and replaceable. The goal is a plugin you can trust, extend, and run entirely on low-end till high-end devices. Its router dispatches requests asynchronously across providers and experimental hardware-aware routing — so you run the best model your environment can actually support.
+Default model is `avexcoder_3b:latest` from ollama alias. It is designed around a clean separation of concerns: providers handle model communication, security, permissions, handlers define task semantics, and the UI layer stays thin and replaceable. The goal is a plugin you can trust, extend, and run entirely on low-end till high-end devices. Its router dispatches requests asynchronously across providers and experimental hardware-aware routing — so you run the best model your environment can actually support.
 
 NOTE: Run `pkill ollama` after exiting neovim.
 
@@ -148,6 +141,99 @@ require("ollie").setup({
     streaming = true,
 })
 ```
+
+
+### Model Setup
+
+Ollie works with any Ollama-compatible model.
+
+If you don't have any model installed. Here is the setup.
+
+#### Lightweight Option (Recommended for Most Users)
+
+Install Qwen 2.5 Coder 1.5B:
+
+```bash
+ollama pull qwen2.5-coder:1.5b
+```
+
+After installation, make sure Ollama is running:
+
+```bash
+ollama serve
+```
+
+You can verify that the model is available:
+
+```bash
+ollama list
+```
+
+Then configure Ollie in your init.lua:
+
+```lua
+require("ollie").setup({
+    default_provider = "ollama",
+    default_model = "qwen2.5-coder:1.5b",
+    streaming = true,
+})
+```
+#### avexcoder_3b option (My own model alias)
+
+If you prefer to use my model instead for better coding performance, Ollie provides the avexcoder_3b model.
+It is built on top of qwen2.5-coder:3b.
+
+Requirements:
+
+* 8 GB RAM or higher
+* Ollama installed
+* [qwen2.5-coder:3b](https://ollama.com/library/qwen2.5-coder) downloaded
+
+Install the model:
+
+```bash
+ollama pull qwen2.5-coder:3b
+```
+
+Create the Ollie model:
+
+
+```bash
+git clone https://github.com/avexcz/ollie.nvim
+cd ollie.nvim
+
+ollama create avexcoder_3b -f Modelfile
+```
+
+Verify the installation:
+
+```bash
+ollama list
+```
+
+You should see `avexcoder_3b:latest`. 
+
+Then ollie configuration setup would be:
+
+```lua
+require("ollie").setup({
+
+    default_provider = "ollama", 
+    default_model = "avexcoder_3b", -- changeable 
+    streaming = true,
+})
+```
+
+Or test/temporary run:
+
+```
+:OllieModel avexcoder_3b:latest
+```
+
+
+
+
+
 
 <br>
 
