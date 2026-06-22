@@ -1,5 +1,6 @@
-# Ollie
-
+<h1 align = "center"> 
+   Ollie.nvim  
+</h1>
 Ollie.nvim is an open-source, AI self-host backend [Neovim](https://neovim.io/) plugin that integrates large language models into the editor through a modular routing and provider system.
 
 It supports both local inference engines and remote APIs, enabling privacy-first and extensible AI workflows.
@@ -7,7 +8,7 @@ It supports both local inference engines and remote APIs, enabling privacy-first
 The architecture separates UI, request handling, and model providers, allowing developers to extend or replace backend engines without modifying core logic.
 </br>
 
-### Media
+## Media
 
 <div align = "center">
 
@@ -16,7 +17,7 @@ The architecture separates UI, request handling, and model providers, allowing d
 
 </div>
 
-### Features
+## Features
 
 - **Structured handlers** — Discrete commands for explanation, debugging, fixing, and many more coming soon. Each handler owns its context and prompt logic independently.
 - **Streaming responses** — Streaming incremental responses. No waiting for full completions.
@@ -29,9 +30,9 @@ The architecture separates UI, request handling, and model providers, allowing d
 
 </br>
 
-<h3 align="left">
+<h4 align="left">
   Sending the query
-</h3>
+</h4>
 
 <p align="center">
   <img src="docs/vid/output.gif" alt="Dashboard" width = "80%" />
@@ -39,7 +40,7 @@ The architecture separates UI, request handling, and model providers, allowing d
 
 </br>
  
-### Personal Assistant Architecture
+## Personal Assistant Architecture
 ```text
 ┌─────────────────────────────────────────────┐
 │                 UI Layer                    │                       
@@ -94,7 +95,7 @@ Design principles:
 
 <br>
 
-### Installation
+## Installation
 
 Requirements:
 
@@ -146,7 +147,6 @@ require("ollie").setup({
 ### Model Setup
 
 Ollie works with any Ollama-compatible model.
-
 If you don't have any model installed. Here is the setup.
 
 #### Lightweight Option (Recommended for Most Users)
@@ -232,10 +232,9 @@ Or test/temporary run:
 
 
 
+</br>
 
-
-
-<br>
+## vim commands
 
 | Command              | Description                                                                          |
 | -------------------- | ------------------------------------------------------------------------------------ |
@@ -251,7 +250,11 @@ Or test/temporary run:
 | `OllieSessionClear`  | Clear entire conversation history                                                    |
 | `:OllieHealth`       | Validate providers, credentials, hardware health, recommanded model and dependencies |
 
-<br>
+</br>
+
+If struggling with long commands, try setting up keymaps.
+
+</br>
 
 ### Contributing
 
