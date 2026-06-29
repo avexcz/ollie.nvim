@@ -12,12 +12,6 @@ local default_config = {
     timeout = 30000,
 }
 
-M.models = {
-    "avexcoder_3b:latest",
-    "qwen2.5-coder:1.5b",
-    "qwen2.5-coder:3b",
-    "llama3.2:latest",
-}
 
 M.config = vim.deepcopy(default_config) -- Ensure we have a mutable config table
 
