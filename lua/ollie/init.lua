@@ -56,8 +56,8 @@ local function colorize_greeting(buf, start_line)
     end
 
     -- Define highlight groups
-    vim.cmd("highlight OllieArt guifg=#87CEEB gui=bold") -- SKy blue for ASCII art
-    vim.cmd("highlight OllieWet guifg=#00CCFF gui=bold") -- Cyan for water
+    vim.cmd("highlight OllieArt guifg=#87CEEB gui=bold")       -- SKy blue for ASCII art
+    vim.cmd("highlight OllieWet guifg=#00CCFF gui=bold")       -- Cyan for water
     vim.cmd("highlight OllieWelcome guifg=#FFFFFF gui=italic") -- Cyan for welcome text
 
 
@@ -75,26 +75,26 @@ local function colorize_greeting(buf, start_line)
 
     -- colour the water ASCII art (line 8)
     for j = 7, 8 do
-    vim.api.nvim_buf_add_highlight(
-        buf,
-        -1,
-        "OllieWet",
-        start_line + j - 1,
-        0,
-        -1
-    )
+        vim.api.nvim_buf_add_highlight(
+            buf,
+            -1,
+            "OllieWet",
+            start_line + j - 1,
+            0,
+            -1
+        )
     end
 
     -- colour the welcome text (line 9)
     for k = 10, 12 do
-    vim.api.nvim_buf_add_highlight(
-        buf,
-        -1,
-        "OllieWelcome",
-        start_line + k - 1,
-        0,
-        -1
-    )
+        vim.api.nvim_buf_add_highlight(
+            buf,
+            -1,
+            "OllieWelcome",
+            start_line + k - 1,
+            0,
+            -1
+        )
     end
 end
 
@@ -109,7 +109,6 @@ end
 
 -- command to open Ollie's interactive window
 vim.api.nvim_create_user_command("Ollie", function()
-
     if not validate_modules() then
         return
     end
@@ -148,7 +147,6 @@ vim.api.nvim_create_user_command("Ollie", function()
     local greeted = true
     -- submit function
     local function submit(user_input)
-
         user_input = vim.trim(user_input or "")
 
         if user_input == "" then
@@ -166,7 +164,7 @@ vim.api.nvim_create_user_command("Ollie", function()
             window.clear("chat")
             greeted = false
         end
-        
+
         local ok, err = pcall(function()
             chat.dispatch_chat(user_input, {
                 include_context = false,
@@ -179,7 +177,6 @@ vim.api.nvim_create_user_command("Ollie", function()
                     input.finish()
                 end,
             })
-
         end)
 
         if not ok then
@@ -195,7 +192,6 @@ vim.api.nvim_create_user_command("Ollie", function()
 
     input.attach(buf, submit)
     input.ask(submit)
-
 end, {})
 
 -- function to check neovim's version

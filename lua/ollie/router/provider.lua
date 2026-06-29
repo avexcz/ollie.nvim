@@ -1,4 +1,3 @@
-
 -- model router for dispatching requests to providers based
 
 local M = {}
@@ -6,51 +5,48 @@ local M = {}
 local providers = require("ollie.providers")
 local permission = require("ollie.system.security.permission")
 local selector = require("ollie.router.selector")
+local config = require("ollie.core.config")
 
--- routing traffic control rules
-local defaults = { 
-    stream = true,
-}
 
-    -- chat = {
-    --     provider = "ollama",
-    --     model = "avexcoder_3b:latest",
-    -- },
+-- chat = {
+--     provider = "ollama",
+--     model = "avexcoder_3b:latest",
+-- },
 
-    -- autocomplete = {
-    --     provider = "ollama",
-    --     model = "qwen2.5-coder:1.5b",
-    -- },
+-- autocomplete = {
+--     provider = "ollama",
+--     model = "qwen2.5-coder:1.5b",
+-- },
 
-    -- fix = {
-    --     provider = "ollama",
-    --     model = "avexcoder_3b:latest",
-    -- },
+-- fix = {
+--     provider = "ollama",
+--     model = "avexcoder_3b:latest",
+-- },
 
-    -- reasoning = {
-    --     provider = "anthropic",
-    --     model = "claude-opus-4-5",
-    --},
+-- reasoning = {
+--     provider = "anthropic",
+--     model = "claude-opus-4-5",
+--},
 local rules = {
 
     chat = {
-        provider = "ollama",
-        model = "avexcoder_3b:latest",
+        provider = config.values.default_provider,
+        model = config.values.default_model,
     },
 
     fix = {
-        provider = "ollama",
-        model = "avexcoder_3b:latest",
+        provider = config.values.default_provider,
+        model = config.values.default_model,
     },
 
     autocomplete = {
-        provider = "ollama",
-        model = "avexcoder_3b:latest",
+        provider = config.values.default_provider,
+        model = config.values.default_model,
     },
 
     explain = {
-        provider = "ollama",
-        model = "avexcoder_3b:latest",
+        provider = config.values.default_provider,
+        model = config.values.default_model,
     }
 }
 
@@ -98,7 +94,7 @@ function M.request(opts)
         return false
     end
 
-    
+
     -- provider/model resolution
     local provider_name = opts.provider or selector.get_provider() or route.provider
     local model = opts.model or selector.get_model() or route.model
@@ -171,9 +167,9 @@ function M.request(opts)
     }
 
     local callbacks = {
-        on_response = opts.on_response,   -- non-streaming: full response at once
+        on_response = opts.on_response, -- non-streaming: full response at once
         on_chunk = opts.on_chunk,       -- streaming: called per chunk
-        on_complete = opts.on_complete,    -- streaming: called when stream ends
+        on_complete = opts.on_complete, -- streaming: called when stream ends
         on_error = opts.on_error,       -- called on any provider-side error
     }
 
@@ -186,10 +182,8 @@ function M.request(opts)
     return stream_or_err
 end
 
-
 -- dynamic rule registration
 function M.register_rule(task, rule)
-
     if type(task) ~= "string" or task == "" then
         vim.notify(
             "register_rule: task must be a non-empty string.",
@@ -231,7 +225,6 @@ function M.register_rule(task, rule)
 
     rules[task] = rule
 end
-
 
 function M.setup(opts)
     opts = opts or {}
