@@ -1,10 +1,11 @@
+
 -- model router for dispatching requests to providers based
 
 local M = {}
 
 local providers = require("ollie.providers")
 local permission = require("ollie.system.security.permission")
-local selector = require("ollie.core.selector")
+local selector = require("ollie.router.selector")
 
 -- routing traffic control rules
 local defaults = { 

@@ -1,7 +1,7 @@
 local M = {}
 
 --core
-local selector = require("ollie.core.selector")
+local selector = require("ollie.router.selector")
 
 --ui
 local notify = require("ollie.ui.notify")

@@ -17,7 +17,7 @@ end
 -- core
 local session = safe_require("ollie.core.session")
 local config = safe_require("ollie.core.config")
-local router = safe_require("ollie.core.router")
+local router = safe_require("ollie.router.provider")
 
 -- system security
 local security = safe_require("ollie.system.security")

@@ -1,11 +1,11 @@
 local M = {}
 
 local session = require("ollie.core.session")
-local buff = require("ollie.core.context.buff")
+local buff = require("ollie.content.buff")
 
 -- ui backends
 local session_ui = require("ollie.ui.session_ui")
-local do_task = require("ollie.ui.behaviour.task_router")
+local do_task = require("ollie.router.task")
 
 
 --------------------------------------------------

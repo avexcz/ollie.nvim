@@ -1,13 +1,17 @@
 local M = {}
 
--- core
-local router = require("ollie.core.router")
+local router = require("ollie.router.provider")
+local tassk = require("ollie.router.task")
+
+--core 
 local session = require("ollie.core.session")
 local runtime = require("ollie.core.runtime")
-local response_text = require("ollie.core.response")
 
---format
-local selection = require("ollie.core.context.selection")
+-- content
+local response_text = require("ollie.conversation.response")
+local selection = require("ollie.content.selection")
+
+-- render
 local render = require("ollie.ui.render")
 
 -- ui
@@ -15,7 +19,7 @@ local notify = require("ollie.ui.notify")
 local window = require("ollie.ui.windows.window")
 
 -- prompt + validation
-local prompt_builder = require("ollie.handler.explain.prompt")
+local prompt_builder = require("ollie.conversation.prompt.explain_prompt")
 local validate = require("ollie.handler.explain.validate")
 
 ----------------------------------------------------

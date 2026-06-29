@@ -1,7 +1,7 @@
 local M = {}
 
 local config = require("ollie.core.config")
-local selector = require("ollie.core.selector")
+local selector = require("ollie.router.selector")
 
 -- get the provider and model for a given task type
 function M.provider(opts)

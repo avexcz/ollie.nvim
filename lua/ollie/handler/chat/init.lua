@@ -2,15 +2,19 @@ local M = {}
 
 -- handler modules
 local validate = require("ollie.handler.chat.validate")
-local prompt_builder = require("ollie.handler.chat.prompt")
+local prompt_builder = require("ollie.conversation.prompt.chat_prompt")
 
+-- router engine
+local router = require("ollie.router.provider")
+local task = require("ollie.router.task")
 
 -- core
-local router = require("ollie.core.router")
 local session = require("ollie.core.session")
 local runtime = require("ollie.core.runtime")
-local response_text = require("ollie.core.response")
-local buff = require("ollie.core.context.buff")
+
+-- content
+local response_text = require("ollie.conversation.response")
+local buff = require("ollie.content.buff")
 
 -- ui
 local notify = require("ollie.ui.notify")
