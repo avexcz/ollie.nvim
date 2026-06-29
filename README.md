@@ -132,15 +132,25 @@ return {
 
 <br>
 
-### Configuration
+### Configuration in Lazy.nvim
 
 ```lua
-require("ollie").setup({
+  {
+    "avexcz/ollie.nvim",
+    lazy = false,
+    event = "VimEnter",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require("ollie").setup({
+        default_provider = "ollama",
+        default_model = "qwen2.5-coder:1.5b",
+        streaming = true,
+      })
+    end
 
-    default_provider = "ollama",
-    default_model = "qwen2.5-coder:3b",
-    streaming = true,
-})
+
+
+  }
 ```
 
 
