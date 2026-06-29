@@ -13,18 +13,18 @@ end
 -- get the current state
 function M.get_state()
     return {
-        provider = current_provider,
-        model = current_model,
+        provider = config.get("default_provider"),
+        model = config.get("default_model"),
     }
 end
 
 -- get the provider and model for a given task type
 function M.get_provider()
-    return current_provider
+    return config.get("default_provider")
 end
 
 function M.get_model()
-    return current_model
+    return config.get("default_model")
 end
 
 -- set the provider and model
@@ -33,7 +33,7 @@ function M.set_model(model)
         return vim.notify("Model not found or install model.", vim.log.levels.ERROR, { title = "Ollie Router" })
     end
 
-    current_model = model
+    config.set("default_model", model)
     return true
 end
 
@@ -46,7 +46,7 @@ function M.set_provider(provider)
         return false
     end
 
-    current_provider = provider
+    config.set("default_provider", provider)
     return true
 end
 
@@ -55,7 +55,7 @@ function M.list_providers()
 end
 
 function M.list_models(provider)
-    return providers.models(provider or current_provider)
+    return providers.models(provider or config.get("default_provider"))
 end
 
 return M
