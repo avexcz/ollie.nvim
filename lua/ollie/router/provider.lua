@@ -5,7 +5,6 @@ local M = {}
 local providers = require("ollie.providers")
 local permission = require("ollie.system.security.permission")
 local selector = require("ollie.router.selector")
-local config = require("ollie.core.config")
 
 
 -- chat = {
@@ -30,18 +29,18 @@ local config = require("ollie.core.config")
 local rules = {
 
     chat = {
-        provider = config.values.default_provider,
-        model = config.values.default_model,
+        provider = {},
+        model = {},
     },
 
     fix = {
-        provider = config.values.default_provider,
-        model = config.values.default_model,
+        provider = {},
+        model = {},
     },
 
     autocomplete = {
-        provider = config.values.default_provider,
-        model = config.values.default_model,
+        provider = {},
+        model = {},
     },
 
     explain = {
