@@ -106,7 +106,7 @@ Requirements:
 <br>
 
 ```lua
-lua{
+return {
   "avexcz/ollie.nvim",
   dependencies = {
     "nvim-lua/plenary.nvim",
@@ -121,7 +121,7 @@ lua{
 <br>
 
 ```lua
-luause {
+return {
   "avexcz/ollie.nvim",
   requires = { "nvim-lua/plenary.nvim" },
   config = function()
