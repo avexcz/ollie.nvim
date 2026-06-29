@@ -22,7 +22,7 @@ local function create_chat_command()
             do_task.chat(
                 opts.args or "",
                 {
-                    include_context = false,
+                    include_context = fals
                 }
             )
         end,
