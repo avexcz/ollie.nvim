@@ -30,22 +30,18 @@ M.values = vim.deepcopy(defaults) -- start with defaults
 
 -- setup
 function M.setup(user_config)
-
     user_config = user_config or {}
     M.values = vim.tbl_deep_extend(
         "force",
         defaults,
         user_config
     )
-
 end
-
 
 -- get config value
 function M.get(key)
     return M.values[key]
 end
-
 
 -- set config value
 function M.set(key, value)

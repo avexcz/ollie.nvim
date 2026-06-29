@@ -3,8 +3,12 @@ local M = {}
 local providers = require("ollie.providers")
 local config = require("ollie.core.config")
 
-local current_provider = config.get("default_provider") or "ollama"
-local current_model = config.get("default_model") or "avexcoder_3b:latest"
+function M.select()
+    return {
+        provider = config.get("default_provider"),
+        model = config.get("default_model"),
+    }
+end
 
 -- get the current state
 function M.get_state()
@@ -26,7 +30,7 @@ end
 -- set the provider and model
 function M.set_model(model)
     if type(model) ~= "string" or vim.trim(model) == "" then
-        return vim.notify("Model not found or install model.", vim.log.levels.ERROR, {title = "Ollie Router"})
+        return vim.notify("Model not found or install model.", vim.log.levels.ERROR, { title = "Ollie Router" })
     end
 
     current_model = model
@@ -35,7 +39,7 @@ end
 
 function M.set_provider(provider)
     if type(provider) ~= "string" or vim.trim(provider) == "" then
-        return vim.notify("Provider not found.", vim.log.levels.ERROR, {title = "Ollie Router"})
+        return vim.notify("Provider not found.", vim.log.levels.ERROR, { title = "Ollie Router" })
     end
 
     if not providers.get(provider) then
