@@ -44,8 +44,8 @@ local rules = {
     },
 
     explain = {
-        provider = config.values.default_provider,
-        model = config.values.default_model,
+        provider = {},
+        model = {},
     }
 }
 
