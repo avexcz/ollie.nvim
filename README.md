@@ -125,7 +125,7 @@ return {
   "avexcz/ollie.nvim",
   requires = { "nvim-lua/plenary.nvim" },
   config = function()
-    require("nvim-ai").setup({})
+    require("ollie").setup({})
   end
 }
 ```
