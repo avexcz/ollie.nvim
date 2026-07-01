@@ -1,3 +1,5 @@
+local M = {}
+
 function M.setup(opts)
     require("ollie.config").setup(opts)
 
@@ -15,3 +17,5 @@ function M.setup(opts)
         end,
     })
 end
+
+return M
